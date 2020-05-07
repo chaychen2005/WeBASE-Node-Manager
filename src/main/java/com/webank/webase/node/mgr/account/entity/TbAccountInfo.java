@@ -36,6 +36,8 @@ public class TbAccountInfo {
     private LocalDateTime modifyTime;
     // 邮件告警的邮箱
     private String email;
+    private String publicKey;
+    private String creator;
 
     public TbAccountInfo() {
         super();
@@ -61,12 +63,14 @@ public class TbAccountInfo {
      * init by account、accountPwd、roleId、description、email.
      */
     public TbAccountInfo(String account, String accountPwd, Integer roleId,
-                         String description, String email) {
+                         String description, String email, String publicKey, String creator) {
         super();
         this.account = account;
         this.accountPwd = accountPwd;
         this.roleId = roleId;
         this.description = description;
         this.email = email;
+        this.publicKey = publicKey;
+        this.creator = creator;
     }
 }

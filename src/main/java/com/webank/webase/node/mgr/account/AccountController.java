@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSON;
 import com.webank.webase.node.mgr.account.entity.AccountInfo;
 import com.webank.webase.node.mgr.account.entity.AccountListParam;
-import com.webank.webase.node.mgr.account.entity.ImageToken;
 import com.webank.webase.node.mgr.account.entity.PasswordInfo;
 import com.webank.webase.node.mgr.account.entity.TbAccountInfo;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
@@ -46,7 +45,6 @@ import com.webank.webase.node.mgr.base.enums.SqlSortType;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
 import com.webank.webase.node.mgr.base.properties.ConstantProperties;
 import com.webank.webase.node.mgr.base.tools.NodeMgrTools;
-import com.webank.webase.node.mgr.base.tools.TokenImgGenerator;
 import com.webank.webase.node.mgr.token.TokenService;
 import lombok.extern.log4j.Log4j2;
 
@@ -59,42 +57,11 @@ public class AccountController extends BaseController {
     private AccountService accountService;
     @Autowired
     private TokenService tokenService;
-    private static final int PICTURE_CHECK_CODE_CHAR_NUMBER = 4;
-
-    /**
-     * 获取验证码
-     */
-    @GetMapping(value = "pictureCheckCode")
-    public BaseResponse getPictureCheckCode() throws Exception {
-        log.info("start getPictureCheckCode");
-
-        // random code
-        String checkCode = NodeMgrTools.randomString(PICTURE_CHECK_CODE_CHAR_NUMBER);
-
-        String token = tokenService.createToken(checkCode, 2);
-        log.info("new checkCode:" + checkCode);
-
-        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
-        try {
-            // 得到图形验证码并返回给页面
-            String base64Image = TokenImgGenerator.getBase64Image(checkCode);
-            ImageToken tokenData = new ImageToken();
-            tokenData.setToken(token);
-            tokenData.setBase64Image(base64Image);
-            baseResponse.setData(tokenData);
-            log.info("end getPictureCheckCode. baseResponse:{}", JSON.toJSONString(baseResponse));
-            return baseResponse;
-        } catch (Exception e) {
-            log.error("fail getPictureCheckCode", e);
-            throw new NodeMgrException(ConstantCode.SYSTEM_EXCEPTION);
-        }
-    }
-
-
+    
     /**
      * add account info.
      */
-    @PostMapping(value = "/accountInfo")
+    @PostMapping(value = "/addAccount")
     @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse addAccountInfo(@RequestBody @Valid AccountInfo info, BindingResult result)
         throws NodeMgrException {
@@ -104,8 +71,11 @@ public class AccountController extends BaseController {
         log.info("start addAccountInfo. startTime:{} accountInfo:{}", startTime.toEpochMilli(),
             JSON.toJSONString(info));
 
+        // current
+        String currentAccount = getCurrentAccount(request);
+
         // add account row
-        accountService.addAccountRow(info);
+        accountService.addAccountRow(info, currentAccount);
 
         // query row
         TbAccountInfo tbAccount = accountService.queryByAccount(info.getAccount());
@@ -118,45 +88,16 @@ public class AccountController extends BaseController {
     }
 
     /**
-     * update account info.
-     */
-    @PutMapping(value = "/accountInfo")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
-    public BaseResponse updateAccountInfo(@RequestBody @Valid AccountInfo info, HttpServletRequest request,
-        BindingResult result) throws NodeMgrException {
-        checkBindResult(result);
-        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
-        Instant startTime = Instant.now();
-        log.info("start updateAccountInfo startTime:{} accountInfo:{}", startTime.toEpochMilli(),
-            JSON.toJSONString(info));
-
-        // current
-        String currentAccount = getCurrentAccount(request);
-
-        // update account row
-        accountService.updateAccountRow(currentAccount, info);
-
-        // query row
-        TbAccountInfo tbAccount = accountService.queryByAccount(info.getAccount());
-        tbAccount.setAccountPwd(null);
-        baseResponse.setData(tbAccount);
-
-        log.info("end updateAccountInfo useTime:{} result:{}",
-            Duration.between(startTime, Instant.now()).toMillis(),
-            JSON.toJSONString(baseResponse));
-        return baseResponse;
-    }
-
-    /**
      * query account list.
      */
     @GetMapping(value = "/accountList/{pageNumber}/{pageSize}")
     @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BasePageResponse queryAccountList(@PathVariable("pageNumber") Integer pageNumber,
-        @PathVariable("pageSize") Integer pageSize,
-        @RequestParam(value = "account", required = false) String account) throws NodeMgrException {
+        @PathVariable("pageSize") Integer pageSize) throws NodeMgrException {
         BasePageResponse pagesponse = new BasePageResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
+
+        String account = getCurrentAccount(request);
         log.info("start queryAccountList.  startTime:{} pageNumber:{} pageSize:{} account:{} ",
             startTime.toEpochMilli(), pageNumber, pageSize, account);
 
@@ -178,15 +119,39 @@ public class AccountController extends BaseController {
     }
 
     /**
-     * delete contract by id.
+     * get public key.
      */
-    @DeleteMapping(value = "/{account}")
+    @GetMapping(value = "/getPKey")
+    public BaseResponse getPublicKey() throws NodeMgrException {
+        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
+        Instant startTime = Instant.now();
+        log.info("start getPublicKey. startTime:{}", startTime.toEpochMilli());
+
+        TbAccountInfo tbCurAccount = accountService.queryByAccount(getCurrentAccount(request));
+        TbAccountInfo tbCreatorAccount = accountService.queryByAccount(tbCurAccount.getCreator());
+        baseResponse.setData(tbCreatorAccount);
+
+        log.info("end getPublicKey. useTime:{} result:{}", Duration.between(startTime, Instant.now()).toMillis(), JSON.toJSONString(baseResponse));
+        return baseResponse;
+    }
+
+    /**
+     * delete account by id.
+     */
+    @DeleteMapping(value = "/deleteAccount/{account}")
     @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse deleteAccount(@PathVariable("account") String account)
         throws NodeMgrException {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start deleteAccount. startTime:{} account:{}", startTime.toEpochMilli(), account);
+
+        String currentAccount = getCurrentAccount(request);
+        TbAccountInfo tbCurAccount = accountService.queryByAccount(account);
+        if (currentAccount == account || tbCurAccount == null || !currentAccount.equals(tbCurAccount.getCreator())) {
+            log.info("lack of access to the key");
+            throw new NodeMgrException(ConstantCode.LACK_ACCESS);
+        }
 
         accountService.deleteAccountRow(account);
 
@@ -198,7 +163,7 @@ public class AccountController extends BaseController {
     /**
      * update password.
      */
-    @PutMapping(value = "/passwordUpdate")
+    @PutMapping(value = "/updatePassword")
     public BaseResponse updatePassword(@RequestBody @Valid PasswordInfo info, HttpServletRequest request, 
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -223,6 +188,7 @@ public class AccountController extends BaseController {
      */
     private String getCurrentAccount(HttpServletRequest request) {
         String token = NodeMgrTools.getToken(request);
+		log.debug("getCurrentAccount account:{}", token);
         return tokenService.getValueFromToken(token);
     }
 }

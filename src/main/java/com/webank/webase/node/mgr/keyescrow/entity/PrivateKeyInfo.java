@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.webase.node.mgr.account.entity;
+package com.webank.webase.node.mgr.keyescrow.entity;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
 import lombok.Data;
 
 @Data
-public class AccountInfo {
-    @NotBlank
+public class PrivateKeyInfo {
     private String account;
     @NotBlank
-    private String accountPwd;
-    @NotNull
-    private Integer roleId;
-    private String publicKey;
+    private String keyAlias;
+    @NotBlank
+    private String cipherText;
+    @NotBlank
+    private String privateKey;
 }

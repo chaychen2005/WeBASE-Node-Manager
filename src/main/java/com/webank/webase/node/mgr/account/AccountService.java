@@ -80,12 +80,12 @@ public class AccountService {
     /**
      * add account row.
      */
-    public void addAccountRow(AccountInfo accountInfo) throws NodeMgrException {
-        log.debug("start addAccountRow.  AccountInfo:{} ", JSON.toJSONString(accountInfo));
+    public void addAccountRow(AccountInfo accountInfo, String creator) throws NodeMgrException {
+        log.debug("start addAccountRow.  AccountInfo:{}, creator:{} ", JSON.toJSONString(accountInfo), creator);
 
         String accountStr = accountInfo.getAccount();
         Integer roleId = accountInfo.getRoleId();
-        String email = accountInfo.getEmail();
+        String publicKey = accountInfo.getPublicKey();
         // check account
         accountNotExist(accountStr);
         // check role id
@@ -93,7 +93,7 @@ public class AccountService {
         // encode password
         String encryptStr = passwordEncoder.encode(accountInfo.getAccountPwd());
         // add account row
-        TbAccountInfo rowInfo = new TbAccountInfo(accountStr, encryptStr, roleId, null, email);
+        TbAccountInfo rowInfo = new TbAccountInfo(accountStr, encryptStr, roleId, null, null, publicKey, creator);
         Integer affectRow = accountMapper.addAccountRow(rowInfo);
 
         // check result
@@ -127,7 +127,6 @@ public class AccountService {
             }
         }
         accountRow.setRoleId(accountInfo.getRoleId());
-        accountRow.setEmail(accountInfo.getEmail());
         //accountRow.setDescription(accountInfo.getDescription());
 
         // update account info

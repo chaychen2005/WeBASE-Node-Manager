@@ -1,6 +1,12 @@
 #server config
 server:
   port: 5001
+  ssl:
+    key-store: classpath:server.keystore
+    key-alias: kms
+    enabled: true
+    key-store-password: 123456
+    key-store-type: JKS
   servlet:
     context-path: /WeBASE-Node-Manager
 

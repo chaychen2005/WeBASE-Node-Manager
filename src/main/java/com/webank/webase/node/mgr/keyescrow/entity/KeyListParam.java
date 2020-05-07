@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.webase.node.mgr.account.entity;
+package com.webank.webase.node.mgr.keyescrow.entity;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import com.webank.webase.node.mgr.base.entity.BaseQueryParam;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+/**
+ * param of query account list.
+ */
 @Data
-public class AccountInfo {
-    @NotBlank
+@NoArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class KeyListParam extends BaseQueryParam {
+
     private String account;
-    @NotBlank
-    private String accountPwd;
-    @NotNull
-    private Integer roleId;
-    private String publicKey;
+
+    public KeyListParam(Integer start, Integer pageSize, String account,
+        String flagSortedByTime) {
+        super(start, pageSize, flagSortedByTime);
+        this.account = account;
+    }
+
 }

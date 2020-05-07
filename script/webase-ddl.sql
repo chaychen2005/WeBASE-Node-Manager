@@ -182,6 +182,8 @@ CREATE TABLE IF NOT EXISTS tb_account_info (
   email varchar(40) DEFAULT NULL COMMENT '用户邮箱',
   create_time datetime DEFAULT NULL COMMENT '创建时间',
   modify_time datetime DEFAULT NULL COMMENT '修改时间',
+  public_key varchar(250) COMMENT '该账号使用的公钥',
+  creator varchar(50) binary COMMENT '创建该账号的账号',
   PRIMARY KEY (account)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统账号信息表';
 
@@ -300,4 +302,16 @@ CREATE TABLE IF NOT EXISTS tb_alert_log (
   modify_time datetime DEFAULT NULL COMMENT '告警日志的修改时间',
   PRIMARY KEY (log_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='告警日志表';
+
+-- ----------------------------
+-- Table structure for tb_key_info
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS tb_key_info (
+  account varchar(50) binary NOT NULL COMMENT '用户名',
+  key_alias varchar(255) NOT NULL COMMENT '密钥标识',
+  cipher_text text NOT NULL COMMENT '经管理员公钥加密的密钥',
+  private_key text NOT NULL COMMENT '用户托管的信息，经用户加密密码加密的密钥',
+  create_time datetime DEFAULT NULL COMMENT '托管密钥的时间',
+  PRIMARY KEY (account,key_alias)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='密钥信息表';
 

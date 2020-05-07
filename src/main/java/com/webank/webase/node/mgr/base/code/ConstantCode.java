@@ -101,6 +101,14 @@ public class ConstantCode {
 
     public static final RetCode PUBLICKEY_NULL = RetCode.mark(202036, "publicKey cannot be empty");
 
+    public static final RetCode KEY_EXISTS = RetCode.mark(202037, "key info already exists");
+
+    public static final RetCode KEY_NOT_EXISTS = RetCode.mark(202038, "key info not exists");
+
+    public static final RetCode KEY_ALIASES_EMPTY = RetCode.mark(202028, "key aliases empty");
+
+    public static final RetCode LACK_ACCESS = RetCode.mark(202029, "lack of access to the key");
+
     public static final RetCode CONTRACT_DEPLOY_FAIL = RetCode
         .mark(202040, "contract deploy not success");
 
