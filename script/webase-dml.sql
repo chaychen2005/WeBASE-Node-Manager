@@ -1,6 +1,6 @@
 
 -- ----------------------------
--- 1、init tb_account_info data   admin/Abcd1234
+-- 1、init tb_account_info data   admin/Abcd1234 56edd4d56db20ad3b7b387fb8963a639c020282c6a4195f7a699b1b487fb6567
 -- ----------------------------
 INSERT INTO `tb_account_info` (account,account_pwd,role_id,create_time,modify_time,public_key) VALUES ('admin', '$2a$10$F/aEB1iEx/FvVh0fMn6L/uyy.PkpTy8Kd9EdbqLGo7Bw7eCivpq.m',100000,now(),now(),'8d83963610117ed59cf2011d5b7434dca7bb570d4a16e63c66f0803f4c4b1c03a1125500e5ca699dfbb6b48d450a82a5020fcb3b43165b508c10cb1479c6ee49');
 

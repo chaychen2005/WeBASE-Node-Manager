@@ -58,8 +58,6 @@ public class TokenService {
         tbToken.setValue(value);
         if (type == TokenType.USER.getValue()) {
             tbToken.setExpireTime(LocalDateTime.now().plusSeconds(properties.getAuthTokenMaxAge()));
-        } else if (type == TokenType.VERIFICATIONCODE.getValue()) {
-            tbToken.setExpireTime(LocalDateTime.now().plusSeconds(properties.getVerificationCodeMaxAge()));
         } else {
             log.error("fail createToken. type:{} not support", type);
             return null;

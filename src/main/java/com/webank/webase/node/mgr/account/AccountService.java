@@ -66,11 +66,6 @@ public class AccountService {
         // encode by bCryptPasswordEncoder
         TbAccountInfo accountRow = accountMapper.queryByAccount(accountStr);
         if (!passwordEncoder.matches(passwordStr, accountRow.getAccountPwd())) {
-            // reset login fail time
-            int loginFailTime = accountRow.getLoginFailTime() + 1;
-            log.info("fail login. password error,loginFailTime:{}", loginFailTime);
-            accountRow.setLoginFailTime(loginFailTime);
-            accountMapper.updateAccountRow(accountRow);
             throw new NodeMgrException(ConstantCode.PASSWORD_ERROR);
         }
 
@@ -100,42 +95,6 @@ public class AccountService {
         checkDbAffectRow(affectRow);
 
         log.debug("end addAccountRow. affectRow:{}", affectRow);
-    }
-
-    /**
-     * update account info.
-     */
-    public void updateAccountRow(String currentAccount, AccountInfo accountInfo)
-        throws NodeMgrException {
-        log.debug("start updateAccountRow.  currentAccount:{} AccountInfo:{} ", currentAccount,
-            JSON.toJSONString(accountInfo));
-
-        String accountStr = accountInfo.getAccount();
-        // check account
-        accountExist(accountStr);
-
-        // query by account
-        TbAccountInfo accountRow = accountMapper.queryByAccount(accountStr);
-
-        // encode password
-        if (StringUtils.isNoneBlank(accountInfo.getAccountPwd())) {
-            String encryptStr = passwordEncoder.encode(accountInfo.getAccountPwd());
-            accountRow.setAccountPwd(encryptStr);
-            // the current user is admin
-            if (!currentAccount.equals(accountStr)) {
-                accountRow.setAccountStatus(AccountStatus.UNMODIFIEDPWD.getValue());
-            }
-        }
-        accountRow.setRoleId(accountInfo.getRoleId());
-        //accountRow.setDescription(accountInfo.getDescription());
-
-        // update account info
-        Integer affectRow = accountMapper.updateAccountRow(accountRow);
-
-        // check result
-        checkDbAffectRow(affectRow);
-
-        log.debug("end updateAccountRow. affectRow:{}", affectRow);
     }
 
     /**

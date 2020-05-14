@@ -89,7 +89,7 @@ public class KeyEscrowController extends BaseController {
     @GetMapping(value = "/queryKey/{account}/{keyAlias}")
     public BaseResponse queryKey(@PathVariable("account") String account, @PathVariable("keyAlias") String keyAlias)
             throws NodeMgrException {
-        BaseResponse pagesponse = new BaseResponse(ConstantCode.SUCCESS);
+        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start queryKey. startTime:{} account:{} keyAlias:{}", startTime.toEpochMilli(), account, keyAlias);
 
@@ -105,12 +105,12 @@ public class KeyEscrowController extends BaseController {
         int count = keyEscrowService.countOfAccountWithKey(account, keyAlias);
         if (count > 0) {
             TbPKeyInfo keyInfo = keyEscrowService.queryByAccountWithKey(account, keyAlias);
-            pagesponse.setData(keyInfo);
+            baseResponse.setData(keyInfo);
         }
 
         log.info("end queryKey useTime:{} result:{}", Duration.between(startTime, Instant.now()).toMillis(),
-                JSON.toJSONString(pagesponse));
-        return pagesponse;
+                JSON.toJSONString(baseResponse));
+        return baseResponse;
     }
 
     /**

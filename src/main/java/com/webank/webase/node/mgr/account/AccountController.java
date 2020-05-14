@@ -121,7 +121,7 @@ public class AccountController extends BaseController {
     /**
      * get public key.
      */
-    @GetMapping(value = "/getPKey")
+    @GetMapping(value = "/getPublicKey")
     public BaseResponse getPublicKey() throws NodeMgrException {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();

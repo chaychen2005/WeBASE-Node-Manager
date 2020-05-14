@@ -12,8 +12,6 @@
     <result column="role_name" javaType="java.lang.String" jdbcType="VARCHAR" property="roleName"/>
     <result column="role_name_zh" javaType="java.lang.String" jdbcType="VARCHAR"
       property="roleNameZh"/>
-    <result column="login_fail_time" javaType="java.lang.Integer" jdbcType="INTEGER"
-      property="loginFailTime"/>
     <result column="account_status" javaType="java.lang.Integer" jdbcType="INTEGER"
       property="accountStatus"/>
     <result column="description" javaType="java.lang.String" jdbcType="INTEGER"
@@ -35,7 +33,7 @@
     (account,account_pwd,role_id,description,email,create_time,modify_time,public_key,creator)
   </sql>
   <sql id="QUERY_ROW_COLUMN">
-    a.account,a.account_pwd accountPwd,a.role_id roleId,a.login_fail_time loginFailTime,
+    a.account,a.account_pwd accountPwd,a.role_id roleId,
     b.role_name roleName,b.role_name_zh roleNameZh,a.account_status accountStatus,
     a.description,a.email,a.create_time createTime,a.modify_time modifyTime,a.public_key publicKey,a.creator
   </sql>
@@ -47,7 +45,7 @@
   </insert>
 
   <update id="updateAccountRow" parameterType="com.webank.webase.node.mgr.account.entity.TbAccountInfo">
-    update tb_account_info set account_pwd=#{accountPwd},role_id=#{roleId},login_fail_time=#{loginFailTime},
+    update tb_account_info set account_pwd=#{accountPwd},role_id=#{roleId},
     account_status=#{accountStatus},description=#{description},email=#{email},modify_time=now()
     where account=#{account}
   </update>

@@ -31,7 +31,7 @@
 package com.webank.webase.node.mgr.base.enums;
 
 public enum AccountStatus {
-    UNMODIFIEDPWD(1), NORMAL(2);
+    UNMODIFIEDPWD(1), NORMAL(2), FROZEN(3);
 
     private int value;
 
